@@ -104,8 +104,8 @@ new_args(Opts) ->
                      R
              end,
 
-    LHttpcOpts = proplists:get_value(lhttpc_opts, Opts, []),
-    DefaultTimeout = proplists:get_value(timeout, Opts, ?DEFAULT_OPERATION_TIMEOUT),
+    LHttpcOpts = arg_or_env(lhttpc_opts, Opts, []),
+    DefaultTimeout = arg_or_env(timeout, Opts, ?DEFAULT_OPERATION_TIMEOUT),
     Host = kinetic_utils:endpoint("kinesis", Region),
     Url = "https://" ++ Host,
 
@@ -134,9 +134,26 @@ new_args(Opts) ->
         aws_credentials=erliam:credentials()
       }.
 
-%% todo:
-%% - rewrite new_args to use this
-%% - handle additional args
+%% return the value of the Name'd plist entry from Plist if not undefined, otherwise the
+%% value of the corresponding application environment variable if likewise not undefined,
+%% otherwise Default.
+arg_or_env(Name, Plist, Default) ->
+    case proplists:get_value(Name, Plist) of
+        undefined ->
+            case g(Name) of
+                undefined ->
+                    Default;
+                EnvValue ->
+                    EnvValue
+            end;
+        PlistValue ->
+            PlistValue
+    end.
+arg_or_env(Name, Plist) ->
+    arg_or_env(Name, Plist, undefined).
+
+
+%% merge some operation-specific arguments into the defaults in Args.
 merge_args(Args, []) ->
     Args;
 merge_args(Args, [{region, Region}|Rest]) ->
