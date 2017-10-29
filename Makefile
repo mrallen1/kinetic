@@ -2,7 +2,7 @@
 PREFIX:=../
 DEST:=$(PREFIX)$(PROJECT)
 
-REBAR=./rebar
+REBAR=rebar3
 
 .PHONY: all doc clean test dialyzer
 
@@ -13,9 +13,8 @@ edoc:
 	@$(REBAR) doc
 
 test:
-	@rm -rf .eunit
-	@mkdir -p .eunit
-	@$(REBAR) skip_deps=true eunit
+	@rm -rf _build/test
+	@$(REBAR) eunit
 
 clean:
 	@$(REBAR) clean
@@ -24,5 +23,5 @@ dialyzer:
 	@$(REBAR) analyze
 
 xref:
-	@$(REBAR) skip_deps=true xref
+	@$(REBAR) xref
 

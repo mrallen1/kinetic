@@ -73,17 +73,19 @@ test_config_env() ->
 test_passed_metadata() ->
     {ok, _Pid} = kinetic_config:start_link([{aws_access_key_id, "whatever"},
                                             {aws_secret_access_key, "secret"}]),
-    ?assert(ets:info(?KINETIC_STREAM) =/= undefined),
-    {ok, #kinetic_arguments{
-        aws_credentials=fake_creds,
-        region="us-east-1",
-        lhttpc_opts=[]}} = kinetic_config:get_args(),
+    {ok, Args0} = kinetic_config:get_args(),
+    ?debugFmt("args: ~p", [Args0]),
+    ?assert(validate_config_record(Args0)),
     kinetic_config:update_data([{aws_access_key_id, "whatever"},
                                 {aws_secret_access_key, "secret"}]),
-    {ok, #kinetic_arguments{
-        aws_credentials=fake_creds,
-        region="us-east-1",
-        lhttpc_opts=[]}} = kinetic_config:get_args(),
-    kinetic_config:stop(),
-    {error, _} = kinetic_config:get_args(),
-    undefined = ets:info(?KINETIC_STREAM).
+    {ok, Args1} = kinetic_config:get_args(),
+    ?assert(validate_config_record(Args1)),
+    kinetic_config:stop().
+
+validate_config_record(#kinetic_arguments{ aws_credentials = fake_creds,
+                                           region = "us-east-1",
+                                           lhttpc_opts = [],
+                                           url = "https://kinesis.us-east-1.amazonaws.com",
+                                           timeout = 5000
+                                         }) -> true;
+validate_config_record(_) -> false.
