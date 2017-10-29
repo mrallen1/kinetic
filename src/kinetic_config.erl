@@ -147,9 +147,6 @@ arg_or_env(Name, Plist, Default) ->
         PlistValue ->
             PlistValue
     end.
-arg_or_env(Name, Plist) ->
-    arg_or_env(Name, Plist, undefined).
-
 
 %% merge some operation-specific arguments into the defaults in Args.
 merge_args(Args, []) ->

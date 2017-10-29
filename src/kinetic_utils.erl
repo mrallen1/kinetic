@@ -1,6 +1,7 @@
 -module(kinetic_utils).
-
 -export([endpoint/2, decode/1, encode/1]).
+
+-define(JSONE_OPTS, [{object_format, tuple}]).
 
 
 endpoint("kinesis", "us-east-1") -> "kinesis.us-east-1.amazonaws.com";
@@ -14,7 +15,7 @@ endpoint("kinesis", "ap-southeast-1") -> "kinesis.ap-southeast-1.amazonaws.com".
 decode(<<"">>) ->
     [];
 decode(Body) ->
-    try jiffy:decode(Body) of
+    try jsone:decode(Body, ?JSONE_OPTS) of
         {Decoded} -> % enforces the dictionary
             Decoded;
 
@@ -22,13 +23,17 @@ decode(Body) ->
             {error, not_a_dict}
     catch
         {error, E} ->
-            {error, E}
+            {error, E};
+        _:E0 ->
+            {error, E0}
     end.
 
 
 encode(Body) ->
-    try jiffy:encode(Body)
+    try jsone:encode(Body)
     catch
-        {error, E} ->
+        {error, E0} ->
+            {error, E0};
+        _:E ->
             {error, E}
     end.
