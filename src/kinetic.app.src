@@ -10,10 +10,10 @@
                   inets,
                   crypto,
                   ssl,
-                  jiffy,
+                  jsone,
                   lhttpc,
                   erliam
                  ]},
   {env, [{args, []}]},
-  {mod, {kinetic,[]}}
+  {mod, {kinetic_app,[]}}
  ]}.
